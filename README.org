@@ -1,7 +1,4 @@
-* dotchin
+Get all instance types in all regions.
 
-This is a description of my dotchin.
-
-** Usage
-
-To use my project, run this command: ./myproject --verbose
+No filtering is done to limit to available types, so if instance 
+is not availble, still this will list it.  

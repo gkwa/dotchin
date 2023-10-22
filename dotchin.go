@@ -31,7 +31,7 @@ func Main() int {
 	slog.Debug("searching regions", "regions", regions)
 
 	x := instanceinfo.NewInstanceInfoMap()
-	GetInstanceTypesAvailableInRegions(regions, *x)
+	GetInstanceTypesAvailableInRegions(regions, x)
 
 	slog.Debug("regions in map", "count", len(x.GetRegions()))
 	return 0
@@ -54,15 +54,14 @@ func chooseRandomItem(items []string, count int) []string {
 	return randomSlice
 }
 
-func GetInstanceTypesAvailableInRegions(regions []string, infoMap instanceinfo.InstanceInfoMap) {
-	concurrencyLimit := 5
+func GetInstanceTypesAvailableInRegions(regions []string, infoMap *instanceinfo.InstanceInfoMap) {
+	concurrencyLimit := 30
 	wg := sync.WaitGroup{}
 
 	semaphoreChan := make(chan struct{}, concurrencyLimit)
 	defer close(semaphoreChan)
 
-	// results := make(chan instanceinfo.InstanceTypeInfoSlice, len(regions))
-	results := make(chan instanceinfo.InstanceTypeInfoSlice)
+	results := make(chan instanceinfo.InstanceTypeInfoSlice, len(regions))
 
 	for _, region := range regions {
 		wg.Add(1)
@@ -73,15 +72,15 @@ func GetInstanceTypesAvailableInRegions(regions []string, infoMap instanceinfo.I
 				wg.Done()
 			}()
 
-			var instanceInfos instanceinfo.InstanceTypeInfoSlice
-			err := GetInstanceTypesProvidedInRegion(region, &instanceInfos)
+			var instanceTypes instanceinfo.InstanceTypeInfoSlice
+			err := GetInstanceTypesProvidedInRegion(region, &instanceTypes)
 			if err != nil {
 				slog.Error("GetInstanceTypesAvailableInRegion", "error", err)
 				return
 			}
 
-			results <- instanceInfos
-			infoMap.Add(region, instanceInfos)
+			results <- instanceTypes
+			infoMap.Add(region, instanceTypes)
 			slog.Debug("instance metrics", "region", region, "count", len(infoMap.Get(region)))
 		}(region)
 	}

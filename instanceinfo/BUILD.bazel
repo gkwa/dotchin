@@ -1,0 +1,9 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "instanceinfo",
+    srcs = ["instanceinfo.go"],
+    importpath = "github.com/taylormonacelli/dotchin/instanceinfo",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_aws_aws_sdk_go_v2_service_ec2//types"],
+)

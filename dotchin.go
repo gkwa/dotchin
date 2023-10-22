@@ -1,18 +1,16 @@
 package dotchin
 
 import (
-	"encoding/json"
 	"log/slog"
 	"math/rand"
 	"sync"
 	"time"
 
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
-	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/taylormonacelli/dotchin/instanceinfo"
 	"github.com/taylormonacelli/lemondrop"
 )
 
@@ -22,6 +20,7 @@ func Main() int {
 	regionDetails, err := lemondrop.GetRegionDetails()
 	if err != nil {
 		slog.Error("get regions", "error", err)
+		return 1
 	}
 
 	regionNames := make([]string, 0)
@@ -29,19 +28,11 @@ func Main() int {
 		regionNames = append(regionNames, region.RegionCode)
 	}
 
-	// regions := chooseRandomItem(regionNames, 100)
-	regions := regionNames
+	regions := chooseRandomItem(regionNames, 100)
 	slog.Debug("searching regions", "regions", regions)
 
-	result := GetInstanceTypesAvailableInRegions(regions)
-
-	indentedJSON, err := json.MarshalIndent(result, "", "    ")
-	if err != nil {
-		slog.Error("marshalling", "error", err)
-		return 1
-	}
-
-	fmt.Println(string(indentedJSON))
+	x := instanceinfo.NewInstanceInfoMap()
+	GetInstanceTypesAvailableInRegions(regions, *x)
 	return 0
 }
 
@@ -62,14 +53,14 @@ func chooseRandomItem(items []string, count int) []string {
 	return randomSlice
 }
 
-func GetInstanceTypesAvailableInRegions(regions []string) map[string][]types.InstanceTypeInfo {
+func GetInstanceTypesAvailableInRegions(regions []string, myMap instanceinfo.InstanceInfoMap) {
 	concurrencyLimit := 100
-	semaphoreChan := make(chan struct{}, concurrencyLimit)
-	defer close(semaphoreChan)
 	wg := sync.WaitGroup{}
 
-	results := make(chan []types.InstanceTypeInfo, len(regions))
-	x := make(map[string][]types.InstanceTypeInfo)
+	semaphoreChan := make(chan struct{}, concurrencyLimit)
+	defer close(semaphoreChan)
+
+	results := make(chan instanceinfo.InstanceTypeInfoSlice)
 
 	for _, region := range regions {
 		wg.Add(1)
@@ -80,37 +71,39 @@ func GetInstanceTypesAvailableInRegions(regions []string) map[string][]types.Ins
 				wg.Done()
 			}()
 
-			output, err := GetInstanceTypesAvailableInRegion(region)
+			var instanceInfos instanceinfo.InstanceTypeInfoSlice
+			err := GetInstanceTypesProvidedInRegion(region, &instanceInfos)
 			if err != nil {
 				slog.Error("GetInstanceTypesAvailableInRegion", "error", err)
 				return
 			}
-			x[region] = output
 
-			slog.Debug("instance metrics", "region", region, "count", len(output))
-
-			results <- output
+			results <- instanceInfos
+			myMap.Add(region, instanceInfos)
+			slog.Debug("instance metrics", "region", region, "count", len(myMap.Get(region)))
 		}(region)
 	}
 
-	wg.Wait()
-	close(results)
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
 
-	return x
+	// block to complete
+	for range results {
+	}
 }
 
-func GetInstanceTypesAvailableInRegion(region string) ([]types.InstanceTypeInfo, error) {
+func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instanceinfo.InstanceTypeInfoSlice) error {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
 	if err != nil {
-		fmt.Printf("Error loading AWS SDK configuration: %v\n", err)
-		return []types.InstanceTypeInfo{}, err
+		slog.Error("error loading AWS SDK configuration", "region", region, "error", err)
+		return err
 	}
 
 	client := ec2.NewFromConfig(cfg)
 
 	input := &ec2.DescribeInstanceTypesInput{}
-
-	var allInstanceTypes []types.InstanceTypeInfo
 
 	paginator := ec2.NewDescribeInstanceTypesPaginator(client, input)
 
@@ -118,11 +111,11 @@ func GetInstanceTypesAvailableInRegion(region string) ([]types.InstanceTypeInfo,
 		page, err := paginator.NextPage(context.TODO())
 		if err != nil {
 			slog.Error("error describing instance types", "error", err)
-			return []types.InstanceTypeInfo{}, err
+			return err
 		}
 
-		allInstanceTypes = append(allInstanceTypes, page.InstanceTypes...)
+		*allInstanceTypes = append(*allInstanceTypes, page.InstanceTypes...)
 	}
 
-	return allInstanceTypes, nil
+	return nil
 }

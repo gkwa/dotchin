@@ -1,12 +1,11 @@
 package dotchin
 
 import (
+	"context"
 	"log/slog"
 	"math/rand"
 	"sync"
 	"time"
-
-	"context"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"

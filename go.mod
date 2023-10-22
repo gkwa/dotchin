@@ -1,6 +1,8 @@
 module github.com/taylormonacelli/dotchin
 
-go 1.21.1
+go 1.21
+
+toolchain go1.21.1
 
 require (
 	github.com/aws/aws-sdk-go-v2/config v1.19.0

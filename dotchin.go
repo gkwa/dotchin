@@ -61,7 +61,8 @@ func GetInstanceTypesAvailableInRegions(regions []string, infoMap instanceinfo.I
 	semaphoreChan := make(chan struct{}, concurrencyLimit)
 	defer close(semaphoreChan)
 
-	results := make(chan instanceinfo.InstanceTypeInfoSlice, len(regions))
+	// results := make(chan instanceinfo.InstanceTypeInfoSlice, len(regions))
+	results := make(chan instanceinfo.InstanceTypeInfoSlice)
 
 	for _, region := range regions {
 		wg.Add(1)

@@ -3,7 +3,6 @@ package cache
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 	"os"
 	"time"
 
@@ -16,15 +15,14 @@ import (
 var CachePath = "/tmp/data.gob"
 var CacheLifetime = 24 * time.Hour
 
-func ExpireCache(maxAge time.Duration, filePath string) {
+func ExpireCache(maxAge time.Duration, filePath string) error {
 	if !mymazda.FileExists(CachePath) {
-		return
+		return nil
 	}
 
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		return err
 	}
 
 	age := time.Since(fileInfo.ModTime()).Truncate(time.Second)
@@ -36,6 +34,8 @@ func ExpireCache(maxAge time.Duration, filePath string) {
 	} else {
 		slog.Debug("cache not old", "age", age, "expires in", expires, "path", CachePath)
 	}
+
+	return nil
 }
 
 func LoadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {

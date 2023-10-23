@@ -8,10 +8,10 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	cache "github.com/taylormonacelli/dotchin/cache"
 	"github.com/taylormonacelli/dotchin/instanceinfo"
 	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 	"github.com/taylormonacelli/lemondrop"
-	cache "github.com/taylormonacelli/dotchin/cache"
 )
 
 func Main() int {
@@ -30,7 +30,10 @@ func Main() int {
 	regionsChosen := _filterRandomRegions(regions, maxRegions)
 	slog.Debug("searching regions", "regions", regions)
 
-	cache.ExpireCache(cache.CacheLifetime, cache.CachePath)
+	err = cache.ExpireCache(cache.CacheLifetime, cache.CachePath)
+	if err != nil {
+		slog.Error("ExpireCache", "error", err)
+	}
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
 	if mymazda.FileExists(cache.CachePath) {

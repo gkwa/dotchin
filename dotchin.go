@@ -26,7 +26,7 @@ func Main() int {
 		regionNames = append(regionNames, region.RegionCode)
 	}
 
-	regions := chooseRandomItem(regionNames, 100)
+	regions := chooseRandomItem(regionNames, 1)
 	slog.Debug("searching regions", "regions", regions)
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
@@ -92,10 +92,12 @@ func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instancei
 
 	paginator := ec2.NewDescribeInstanceTypesPaginator(client, input)
 
+	pageCount := 1
 	for paginator.HasMorePages() {
-		ctx2, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		slog.Debug("fetching page", "count", pageCount)
+		ctx2, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-	
+
 		page, err := paginator.NextPage(ctx2)
 		if err != nil {
 			slog.Error("error describing instance types", "error", err)
@@ -103,6 +105,7 @@ func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instancei
 		}
 
 		*allInstanceTypes = append(*allInstanceTypes, page.InstanceTypes...)
+		pageCount += 1
 	}
 
 	return nil

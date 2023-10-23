@@ -30,13 +30,13 @@ func Main() int {
 	slog.Debug("searching regions", "regions", regions)
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
-	GetInstanceTypesAvailableInRegions(regions, infoMap)
+	FillInfoMap(regions, infoMap)
 
 	slog.Debug("regions in map", "count", len(infoMap.GetRegions()))
 	return 0
 }
 
-func GetInstanceTypesAvailableInRegions(regions []string, infoMap *instanceinfo.InstanceInfoMap) {
+func FillInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) {
 	concurrencyLimit := 30
 	wg := sync.WaitGroup{}
 

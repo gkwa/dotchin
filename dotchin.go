@@ -3,9 +3,7 @@ package dotchin
 import (
 	"context"
 	"log/slog"
-	"math/rand"
 	"sync"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
@@ -30,28 +28,11 @@ func Main() int {
 	regions := chooseRandomItem(regionNames, 100)
 	slog.Debug("searching regions", "regions", regions)
 
-	x := instanceinfo.NewInstanceInfoMap()
-	GetInstanceTypesAvailableInRegions(regions, x)
+	infoMap := instanceinfo.NewInstanceInfoMap()
+	GetInstanceTypesAvailableInRegions(regions, infoMap)
 
-	slog.Debug("regions in map", "count", len(x.GetRegions()))
+	slog.Debug("regions in map", "count", len(infoMap.GetRegions()))
 	return 0
-}
-
-func chooseRandomItem(items []string, count int) []string {
-	seed := time.Now().UnixNano()
-	rng := rand.New(rand.NewSource(seed))
-
-	if count > len(items) {
-		count = len(items)
-	}
-
-	rng.Shuffle(len(items), func(i, j int) {
-		items[i], items[j] = items[j], items[i]
-	})
-
-	randomSlice := items[:count]
-
-	return randomSlice
 }
 
 func GetInstanceTypesAvailableInRegions(regions []string, infoMap *instanceinfo.InstanceInfoMap) {

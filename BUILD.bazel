@@ -15,7 +15,10 @@ gazelle(
 
 go_library(
     name = "dotchin",
-    srcs = ["dotchin.go"],
+    srcs = [
+        "dotchin.go",
+        "helper.go",
+    ],
     importpath = "github.com/taylormonacelli/dotchin",
     visibility = ["//visibility:public"],
     deps = [

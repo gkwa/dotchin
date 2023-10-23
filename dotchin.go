@@ -1,16 +1,23 @@
 package dotchin
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
+	"io"
 	"log/slog"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/taylormonacelli/dotchin/instanceinfo"
+	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 	"github.com/taylormonacelli/lemondrop"
 )
+
+var cachePath = "/tmp/data.gob"
 
 func Main() int {
 	slog.Debug("dotchin", "test", true)
@@ -26,7 +33,7 @@ func Main() int {
 		regionNames = append(regionNames, region.RegionCode)
 	}
 
-	regions := chooseRandomItem(regionNames, 1)
+	regions := chooseRandomItem(regionNames, 100)
 	slog.Debug("searching regions", "regions", regions)
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
@@ -36,8 +43,32 @@ func Main() int {
 	return 0
 }
 
-func FillInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) {
-	concurrencyLimit := 30
+func FillInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
+	if mymazda.FileExists(cachePath) {
+		slog.Info("cache", "hit", true)
+		buffer := loadFromFile()
+		err := readMapFromBuffer(buffer, *infoMap)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	slog.Info("cache", "hit", false)
+	fetchInfoMapFromNetwork(regions, infoMap)
+
+	err := persistMapToDisk(infoMap)
+	if err != nil {
+		slog.Error("persistMapToDisk", "error", err)
+		return err
+	}
+
+	return nil
+}
+
+func fetchInfoMapFromNetwork(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
+	concurrencyLimit := 5
 	wg := sync.WaitGroup{}
 
 	semaphoreChan := make(chan struct{}, concurrencyLimit)
@@ -57,9 +88,10 @@ func FillInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) {
 			var instanceTypes instanceinfo.InstanceTypeInfoSlice
 			err := GetInstanceTypesProvidedInRegion(region, &instanceTypes)
 			if err != nil {
-				slog.Error("GetInstanceTypesAvailableInRegion", "error", err)
+				slog.Error("GetInstanceTypesAvailableInRegion", "region", region, "error", err)
 			}
 
+			slog.Debug("instance types", "region", region, "count", len(instanceTypes))
 			results <- instanceTypes
 			infoMap.Add(region, instanceTypes)
 			slog.Debug("instance metrics", "region", region, "count", len(infoMap.Get(region)))
@@ -74,6 +106,62 @@ func FillInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) {
 	// block to complete
 	for range results {
 	}
+
+	return nil
+}
+
+func loadFromFile() bytes.Buffer {
+	file, err := os.Open(cachePath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	var buffer bytes.Buffer
+
+	_, err = io.Copy(&buffer, file)
+	if err != nil {
+		panic(err)
+	}
+
+	return buffer
+}
+
+func readMapFromBuffer(buffer bytes.Buffer, infoMap instanceinfo.InstanceInfoMap) error {
+	dec := gob.NewDecoder(&buffer)
+	gob.Register(instanceinfo.InstanceInfoMap{})
+
+	err := dec.Decode(&infoMap)
+	if err != nil {
+		slog.Error("decode", "error", err)
+		return err
+	}
+
+	return nil
+}
+
+func persistMapToDisk(infoMap *instanceinfo.InstanceInfoMap) error {
+	var buffer bytes.Buffer
+	enc := gob.NewEncoder(&buffer)
+	gob.Register(instanceinfo.InstanceInfoMap{})
+
+	err := enc.Encode(*infoMap)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(cachePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.Write(buffer.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instanceinfo.InstanceTypeInfoSlice) error {
@@ -100,7 +188,7 @@ func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instancei
 
 		page, err := paginator.NextPage(ctx2)
 		if err != nil {
-			slog.Error("error describing instance types", "error", err)
+			slog.Error("error describing instance types", "region", region, "error", err)
 			return err
 		}
 

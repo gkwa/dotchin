@@ -7,26 +7,26 @@ import (
 type InstanceTypeInfoSlice []types.InstanceTypeInfo
 
 type InstanceInfoMap struct {
-	data map[string]InstanceTypeInfoSlice
+	Data map[string]InstanceTypeInfoSlice
 }
 
 func NewInstanceInfoMap() *InstanceInfoMap {
 	return &InstanceInfoMap{
-		data: make(map[string]InstanceTypeInfoSlice),
+		Data: make(map[string]InstanceTypeInfoSlice),
 	}
 }
 
 func (m *InstanceInfoMap) Add(key string, value []types.InstanceTypeInfo) {
-	m.data[key] = append(m.data[key], value...)
+	m.Data[key] = append(m.Data[key], value...)
 }
 
 func (m *InstanceInfoMap) Get(key string) []types.InstanceTypeInfo {
-	return m.data[key]
+	return m.Data[key]
 }
 
 func (m *InstanceInfoMap) GetRegions() []string {
-	regionStrings := make([]string, 0, len(m.data))
-	for regionName := range m.data {
+	regionStrings := make([]string, 0, len(m.Data))
+	for regionName := range m.Data {
 		regionStrings = append(regionStrings, regionName)
 	}
 

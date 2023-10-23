@@ -1,19 +1,14 @@
 package dotchin
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
-	"io"
 	"log/slog"
-	"os"
 	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/taylormonacelli/dotchin/instanceinfo"
-	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 	"github.com/taylormonacelli/lemondrop"
 )
 
@@ -28,46 +23,31 @@ func Main() int {
 		return 1
 	}
 
-	regionNames := make([]string, 0, len(regionDetails))
+	regions := make([]string, 0, len(regionDetails))
 	for _, region := range regionDetails {
-		regionNames = append(regionNames, region.RegionCode)
+		regions = append(regions, region.RegionCode)
 	}
 
-	regions := chooseRandomItem(regionNames, 100)
+	regionsChosen := _filterRandomRegions(regions, 100)
 	slog.Debug("searching regions", "regions", regions)
 
-	infoMap := instanceinfo.NewInstanceInfoMap()
-	FillInfoMap(regions, infoMap)
+	cacheLifetime := 24 * time.Hour
+	expireCache(cacheLifetime, cachePath)
 
-	slog.Debug("regions in map", "count", len(infoMap.GetRegions()))
+	infoMap := instanceinfo.NewInstanceInfoMap()
+	loadInfoMap(regionsChosen, infoMap)
+
+	slog.Debug("infoMap", "region count", len(infoMap.GetRegions()))
+
+	for _, region := range infoMap.GetRegions() {
+		types := infoMap.Get(region)
+		slog.Debug("regions check", "region", region, "types", len(types))
+	}
+
 	return 0
 }
 
-func FillInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
-	if mymazda.FileExists(cachePath) {
-		slog.Info("cache", "hit", true)
-		buffer := loadFromFile()
-		err := readMapFromBuffer(buffer, *infoMap)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	slog.Info("cache", "hit", false)
-	fetchInfoMapFromNetwork(regions, infoMap)
-
-	err := persistMapToDisk(infoMap)
-	if err != nil {
-		slog.Error("persistMapToDisk", "error", err)
-		return err
-	}
-
-	return nil
-}
-
-func fetchInfoMapFromNetwork(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
+func networkFetchInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
 	concurrencyLimit := 5
 	wg := sync.WaitGroup{}
 
@@ -86,7 +66,7 @@ func fetchInfoMapFromNetwork(regions []string, infoMap *instanceinfo.InstanceInf
 			}()
 
 			var instanceTypes instanceinfo.InstanceTypeInfoSlice
-			err := GetInstanceTypesProvidedInRegion(region, &instanceTypes)
+			err := _getInstanceTypesProvidedInRegion(region, &instanceTypes)
 			if err != nil {
 				slog.Error("GetInstanceTypesAvailableInRegion", "region", region, "error", err)
 			}
@@ -110,61 +90,7 @@ func fetchInfoMapFromNetwork(regions []string, infoMap *instanceinfo.InstanceInf
 	return nil
 }
 
-func loadFromFile() bytes.Buffer {
-	file, err := os.Open(cachePath)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	var buffer bytes.Buffer
-
-	_, err = io.Copy(&buffer, file)
-	if err != nil {
-		panic(err)
-	}
-
-	return buffer
-}
-
-func readMapFromBuffer(buffer bytes.Buffer, infoMap instanceinfo.InstanceInfoMap) error {
-	dec := gob.NewDecoder(&buffer)
-	gob.Register(instanceinfo.InstanceInfoMap{})
-
-	err := dec.Decode(&infoMap)
-	if err != nil {
-		slog.Error("decode", "error", err)
-		return err
-	}
-
-	return nil
-}
-
-func persistMapToDisk(infoMap *instanceinfo.InstanceInfoMap) error {
-	var buffer bytes.Buffer
-	enc := gob.NewEncoder(&buffer)
-	gob.Register(instanceinfo.InstanceInfoMap{})
-
-	err := enc.Encode(*infoMap)
-	if err != nil {
-		return err
-	}
-
-	file, err := os.Create(cachePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = file.Write(buffer.Bytes())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instanceinfo.InstanceTypeInfoSlice) error {
+func _getInstanceTypesProvidedInRegion(region string, allInstanceTypes *instanceinfo.InstanceTypeInfoSlice) error {
 	ctx1, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

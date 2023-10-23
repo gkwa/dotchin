@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func chooseRandomItem(items []string, count int) []string {
+func _filterRandomRegions(items []string, count int) []string {
 	seed := time.Now().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 

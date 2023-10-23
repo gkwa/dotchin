@@ -16,6 +16,7 @@ gazelle(
 go_library(
     name = "dotchin",
     srcs = [
+        "cache.go",
         "dotchin.go",
         "helper.go",
     ],

@@ -1,0 +1,12 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "cache",
+    srcs = ["cache.go"],
+    importpath = "github.com/taylormonacelli/dotchin/cache",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//instanceinfo",
+        "@com_github_taylormonacelli_forestfish//mymazda",
+    ],
+)

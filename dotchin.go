@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
@@ -57,7 +58,6 @@ func GetInstanceTypesAvailableInRegions(regions []string, infoMap *instanceinfo.
 			err := GetInstanceTypesProvidedInRegion(region, &instanceTypes)
 			if err != nil {
 				slog.Error("GetInstanceTypesAvailableInRegion", "error", err)
-				return
 			}
 
 			results <- instanceTypes
@@ -77,7 +77,10 @@ func GetInstanceTypesAvailableInRegions(regions []string, infoMap *instanceinfo.
 }
 
 func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instanceinfo.InstanceTypeInfoSlice) error {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	ctx1, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cfg, err := config.LoadDefaultConfig(ctx1, config.WithRegion(region))
 	if err != nil {
 		slog.Error("error loading AWS SDK configuration", "region", region, "error", err)
 		return err
@@ -90,7 +93,10 @@ func GetInstanceTypesProvidedInRegion(region string, allInstanceTypes *instancei
 	paginator := ec2.NewDescribeInstanceTypesPaginator(client, input)
 
 	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(context.TODO())
+		ctx2, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+	
+		page, err := paginator.NextPage(ctx2)
 		if err != nil {
 			slog.Error("error describing instance types", "error", err)
 			return err

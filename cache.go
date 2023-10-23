@@ -13,6 +13,9 @@ import (
 	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 )
 
+var cachePath = "/tmp/data.gob"
+var cacheLifetime = 24 * time.Hour
+
 func expireCache(maxAge time.Duration, filePath string) {
 	if !mymazda.FileExists(cachePath) {
 		return
@@ -36,32 +39,17 @@ func expireCache(maxAge time.Duration, filePath string) {
 }
 
 func loadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
-	if mymazda.FileExists(cachePath) {
-		slog.Info("cache", "hit", true)
-
-		byteSlice, err := os.ReadFile(cachePath)
-		if err != nil {
-			return err
-		}
-		var buffer bytes.Buffer
-		buffer.Write(byteSlice)
-
-		gob.Register(instanceinfo.InstanceInfoMap{})
-		dec := gob.NewDecoder(&buffer)
-		err = dec.Decode(&infoMap)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	slog.Info("cache", "hit", false)
-	networkFetchInfoMap(regions, infoMap)
-
-	err := saveInfoMap(infoMap)
+	byteSlice, err := os.ReadFile(cachePath)
 	if err != nil {
-		slog.Error("persistMapToDisk", "error", err)
+		return err
+	}
+	var buffer bytes.Buffer
+	buffer.Write(byteSlice)
+
+	gob.Register(instanceinfo.InstanceInfoMap{})
+	dec := gob.NewDecoder(&buffer)
+	err = dec.Decode(&infoMap)
+	if err != nil {
 		return err
 	}
 

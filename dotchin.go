@@ -9,14 +9,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/taylormonacelli/dotchin/instanceinfo"
+	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 	"github.com/taylormonacelli/lemondrop"
 )
 
-var cachePath = "/tmp/data.gob"
-
 func Main() int {
-	slog.Debug("dotchin", "test", true)
-
 	regionDetails, err := lemondrop.GetRegionDetails()
 	if err != nil {
 		slog.Error("get regions", "error", err)
@@ -28,15 +25,20 @@ func Main() int {
 		regions = append(regions, region.RegionCode)
 	}
 
-	regionsChosen := _filterRandomRegions(regions, 100)
+	maxRegions := len(regions) //eg. for debug/test limit to 1 region
+	regionsChosen := _filterRandomRegions(regions, maxRegions)
 	slog.Debug("searching regions", "regions", regions)
 
-	cacheLifetime := 24 * time.Hour
 	expireCache(cacheLifetime, cachePath)
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
-	loadInfoMap(regionsChosen, infoMap)
-
+	if mymazda.FileExists(cachePath) {
+		slog.Info("cache", "hit", true)
+		loadInfoMap(regionsChosen, infoMap)
+	} else {
+		slog.Info("cache", "hit", false)
+		networkFetchInfoMap(regions, infoMap)
+	}
 	slog.Debug("infoMap", "region count", len(infoMap.GetRegions()))
 
 	for _, region := range infoMap.GetRegions() {
@@ -85,6 +87,12 @@ func networkFetchInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap
 
 	// block to complete
 	for range results {
+	}
+
+	err := saveInfoMap(infoMap)
+	if err != nil {
+		slog.Error("persistMapToDisk", "error", err)
+		return err
 	}
 
 	return nil

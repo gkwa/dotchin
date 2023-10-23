@@ -1,4 +1,4 @@
-package dotchin
+package cache
 
 import (
 	"bytes"
@@ -13,11 +13,11 @@ import (
 	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 )
 
-var cachePath = "/tmp/data.gob"
-var cacheLifetime = 24 * time.Hour
+var CachePath = "/tmp/data.gob"
+var CacheLifetime = 24 * time.Hour
 
-func expireCache(maxAge time.Duration, filePath string) {
-	if !mymazda.FileExists(cachePath) {
+func ExpireCache(maxAge time.Duration, filePath string) {
+	if !mymazda.FileExists(CachePath) {
 		return
 	}
 
@@ -31,15 +31,15 @@ func expireCache(maxAge time.Duration, filePath string) {
 	expires := time.Until(fileInfo.ModTime().Add(maxAge)).Truncate(time.Second)
 
 	if age > maxAge {
-		slog.Debug("cache is old", "age", age, "path", cachePath)
-		defer os.Remove(cachePath)
+		slog.Debug("cache is old", "age", age, "path", CachePath)
+		defer os.Remove(CachePath)
 	} else {
-		slog.Debug("cache not old", "age", age, "expires in", expires, "path", cachePath)
+		slog.Debug("cache not old", "age", age, "expires in", expires, "path", CachePath)
 	}
 }
 
-func loadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
-	byteSlice, err := os.ReadFile(cachePath)
+func LoadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
+	byteSlice, err := os.ReadFile(CachePath)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func loadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error 
 	return nil
 }
 
-func saveInfoMap(infoMap *instanceinfo.InstanceInfoMap) error {
+func SaveInfoMap(infoMap *instanceinfo.InstanceInfoMap) error {
 	var buffer bytes.Buffer
 	gob.Register(instanceinfo.InstanceInfoMap{})
 
@@ -66,7 +66,7 @@ func saveInfoMap(infoMap *instanceinfo.InstanceInfoMap) error {
 		return err
 	}
 
-	file, err := os.Create(cachePath)
+	file, err := os.Create(CachePath)
 	if err != nil {
 		return err
 	}

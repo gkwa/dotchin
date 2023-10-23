@@ -11,6 +11,7 @@ import (
 	"github.com/taylormonacelli/dotchin/instanceinfo"
 	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 	"github.com/taylormonacelli/lemondrop"
+	cache "github.com/taylormonacelli/dotchin/cache"
 )
 
 func Main() int {
@@ -29,12 +30,12 @@ func Main() int {
 	regionsChosen := _filterRandomRegions(regions, maxRegions)
 	slog.Debug("searching regions", "regions", regions)
 
-	expireCache(cacheLifetime, cachePath)
+	cache.ExpireCache(cache.CacheLifetime, cache.CachePath)
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
-	if mymazda.FileExists(cachePath) {
+	if mymazda.FileExists(cache.CachePath) {
 		slog.Info("cache", "hit", true)
-		loadInfoMap(regionsChosen, infoMap)
+		cache.LoadInfoMap(regionsChosen, infoMap)
 	} else {
 		slog.Info("cache", "hit", false)
 		networkFetchInfoMap(regions, infoMap)
@@ -89,7 +90,7 @@ func networkFetchInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap
 	for range results {
 	}
 
-	err := saveInfoMap(infoMap)
+	err := cache.SaveInfoMap(infoMap)
 	if err != nil {
 		slog.Error("persistMapToDisk", "error", err)
 		return err

@@ -37,24 +37,6 @@ func ExpireCache(maxAge time.Duration, filePath string) error {
 	return nil
 }
 
-func LoadMyCachedObject(blob interface{}, infoMap interface{}) error {
-	byteSlice, err := os.ReadFile(CachePath)
-	if err != nil {
-		return err
-	}
-	var buffer bytes.Buffer
-	buffer.Write(byteSlice)
-
-	gob.Register(blob)
-	dec := gob.NewDecoder(&buffer)
-	err = dec.Decode(&infoMap)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func SaveMyArbitrationOjbect(myInfoMap interface{}) error {
 	var buffer bytes.Buffer
 	gob.Register(myInfoMap)

@@ -8,7 +8,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
-	cache "github.com/taylormonacelli/dotchin/cache"
 )
 
 func NetworkFetchInfoMap(regions []string, infoMap *InstanceInfoMap) error {
@@ -51,11 +50,11 @@ func NetworkFetchInfoMap(regions []string, infoMap *InstanceInfoMap) error {
 	for range results {
 	}
 
-	err := cache.SaveMyArbitrationOjbect(infoMap)
-	if err != nil {
-		slog.Error("persistMapToDisk", "error", err)
-		return err
-	}
+	// err := cache.SaveMyArbitrationOjbect(infoMap)
+	// if err != nil {
+	// 	slog.Error("persistMapToDisk", "error", err)
+	// 	return err
+	// }
 
 	return nil
 }

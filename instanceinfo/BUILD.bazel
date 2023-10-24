@@ -4,12 +4,11 @@ go_library(
     name = "instanceinfo",
     srcs = [
         "aws.go",
-        "instanceinfo.go",
+        "model.go",
     ],
     importpath = "github.com/taylormonacelli/dotchin/instanceinfo",
     visibility = ["//visibility:public"],
     deps = [
-        "//cache",
         "@com_github_aws_aws_sdk_go_v2_config//:config",
         "@com_github_aws_aws_sdk_go_v2_service_ec2//:ec2",
         "@com_github_aws_aws_sdk_go_v2_service_ec2//types",

@@ -3,7 +3,7 @@ package dotchin
 import (
 	"log/slog"
 
-	"github.com/taylormonacelli/dotchin/cache"
+	"github.com/taylormonacelli/busybus"
 	"github.com/taylormonacelli/dotchin/instanceinfo"
 	"github.com/taylormonacelli/lemondrop"
 )
@@ -24,13 +24,13 @@ func Main() int {
 	regionsChosen := _filterRandomRegions(regions, maxRegions)
 	slog.Debug("searching regions", "regions", regions)
 
-	err = cache.ExpireCache(cache.CacheLifetime, cache.CachePath)
+	err = busybus.ExpireCache(busybus.CacheLifetime, busybus.CachePath)
 	if err != nil {
 		slog.Error("ExpireCache", "error", err)
 	}
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
-	cacheErr := cache.DecodeFromCache(&infoMap)
+	cacheErr := busybus.DecodeFromCache(&infoMap)
 
 	if cacheErr == nil {
 		slog.Info("cache", "hit", true)
@@ -38,7 +38,7 @@ func Main() int {
 		slog.Info("cache", "hit", false)
 		instanceinfo.NetworkFetchInfoMap(regionsChosen, infoMap)
 
-		cacheErr = cache.SaveToCache(&infoMap)
+		cacheErr = busybus.SaveToCache(&infoMap)
 		if cacheErr != nil {
 			slog.Error("SaveToCache", "error", cacheErr)
 		}

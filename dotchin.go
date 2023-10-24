@@ -6,11 +6,16 @@ import (
 	"log/slog"
 	"os"
 
-	cache "github.com/taylormonacelli/dotchin/cache"
+	"github.com/taylormonacelli/dotchin/cache"
 	"github.com/taylormonacelli/dotchin/instanceinfo"
 	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 	"github.com/taylormonacelli/lemondrop"
 )
+
+func init() {
+	// Register the concrete type at the package level
+	gob.Register(instanceinfo.InstanceInfoMap{})
+}
 
 func Main() int {
 	regionDetails, err := lemondrop.GetRegionDetails()
@@ -44,9 +49,8 @@ func Main() int {
 		var buffer bytes.Buffer
 		buffer.Write(byteSlice)
 
-		gob.Register(instanceinfo.InstanceInfoMap{})
-		dec := gob.NewDecoder(&buffer)
-		err = dec.Decode(&infoMap)
+		var infoMap instanceinfo.InstanceInfoMap
+		err = cache.DecodeInterface(&buffer, &infoMap)
 		if err != nil {
 			panic(err)
 		}

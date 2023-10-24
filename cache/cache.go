@@ -3,6 +3,7 @@ package cache
 import (
 	"bytes"
 	"encoding/gob"
+	"io"
 	"os"
 	"time"
 
@@ -13,6 +14,12 @@ import (
 
 var CachePath = "/tmp/data.gob"
 var CacheLifetime = 24 * time.Hour
+
+func DecodeInterface(buffer io.Reader, value interface{}) error {
+	dec := gob.NewDecoder(buffer)
+	err := dec.Decode(value)
+	return err
+}
 
 func ExpireCache(maxAge time.Duration, filePath string) error {
 	if !mymazda.FileExists(CachePath) {

@@ -8,7 +8,6 @@ import (
 
 	"log/slog"
 
-	"github.com/taylormonacelli/dotchin/instanceinfo"
 	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 )
 
@@ -38,7 +37,7 @@ func ExpireCache(maxAge time.Duration, filePath string) error {
 	return nil
 }
 
-func LoadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error {
+func LoadMyCachedObject(blob interface{}, infoMap interface{}) error {
 	byteSlice, err := os.ReadFile(CachePath)
 	if err != nil {
 		return err
@@ -46,7 +45,7 @@ func LoadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error 
 	var buffer bytes.Buffer
 	buffer.Write(byteSlice)
 
-	gob.Register(instanceinfo.InstanceInfoMap{})
+	gob.Register(blob)
 	dec := gob.NewDecoder(&buffer)
 	err = dec.Decode(&infoMap)
 	if err != nil {
@@ -56,12 +55,12 @@ func LoadInfoMap(regions []string, infoMap *instanceinfo.InstanceInfoMap) error 
 	return nil
 }
 
-func SaveInfoMap(infoMap *instanceinfo.InstanceInfoMap) error {
+func SaveMyArbitrationOjbect(myInfoMap interface{}) error {
 	var buffer bytes.Buffer
-	gob.Register(instanceinfo.InstanceInfoMap{})
+	gob.Register(myInfoMap)
 
 	enc := gob.NewEncoder(&buffer)
-	err := enc.Encode(*infoMap)
+	err := enc.Encode(myInfoMap)
 	if err != nil {
 		return err
 	}

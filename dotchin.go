@@ -30,13 +30,13 @@ func Main() int {
 		slog.Error("ExpireCache", "error", err)
 	}
 
-	infoMap := *instanceinfo.NewInstanceInfoMap()
+	infoMap := instanceinfo.NewInstanceInfoMap()
 	if mymazda.FileExists(cache.CachePath) {
 		slog.Info("cache", "hit", true)
 		cache.LoadMyCachedObject(infoMap, infoMap)
 	} else {
 		slog.Info("cache", "hit", false)
-		instanceinfo.NetworkFetchInfoMap(regionsChosen, &infoMap)
+		instanceinfo.NetworkFetchInfoMap(regionsChosen, infoMap)
 	}
 	slog.Debug("infoMap", "region count", len(infoMap.GetRegions()))
 

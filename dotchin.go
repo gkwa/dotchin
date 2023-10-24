@@ -1,21 +1,12 @@
 package dotchin
 
 import (
-	"bytes"
-	"encoding/gob"
 	"log/slog"
-	"os"
 
 	"github.com/taylormonacelli/dotchin/cache"
 	"github.com/taylormonacelli/dotchin/instanceinfo"
-	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 	"github.com/taylormonacelli/lemondrop"
 )
-
-func init() {
-	// Register the concrete type at the package level
-	gob.Register(instanceinfo.InstanceInfoMap{})
-}
 
 func Main() int {
 	regionDetails, err := lemondrop.GetRegionDetails()
@@ -29,7 +20,7 @@ func Main() int {
 		regions = append(regions, region.RegionCode)
 	}
 
-	maxRegions := len(regions) //eg. for debug/test limit to 1 region
+	maxRegions := len(regions) // eg. for debug/test limit to 1 region
 	regionsChosen := _filterRandomRegions(regions, maxRegions)
 	slog.Debug("searching regions", "regions", regions)
 
@@ -39,25 +30,18 @@ func Main() int {
 	}
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
-	if mymazda.FileExists(cache.CachePath) {
+	cacheErr := cache.DecodeFromCache(&infoMap)
+
+	if cacheErr == nil {
 		slog.Info("cache", "hit", true)
-
-		byteSlice, err := os.ReadFile("/tmp/data.gob")
-		if err != nil {
-			panic(err)
-		}
-		var buffer bytes.Buffer
-		buffer.Write(byteSlice)
-
-		var infoMap instanceinfo.InstanceInfoMap
-		err = cache.DecodeInterface(&buffer, &infoMap)
-		if err != nil {
-			panic(err)
-		}
-
 	} else {
 		slog.Info("cache", "hit", false)
 		instanceinfo.NetworkFetchInfoMap(regionsChosen, infoMap)
+
+		cacheErr = cache.SaveToCache(&infoMap)
+		if cacheErr != nil {
+			slog.Error("SaveToCache", "error", cacheErr)
+		}
 	}
 	slog.Debug("infoMap", "region count", len(infoMap.GetRegions()))
 

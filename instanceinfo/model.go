@@ -32,4 +32,3 @@ func (m *InstanceInfoMap) GetRegions() []string {
 
 	return regionStrings
 }
-

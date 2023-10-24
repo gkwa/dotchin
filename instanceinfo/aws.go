@@ -11,7 +11,7 @@ import (
 )
 
 func NetworkFetchInfoMap(regions []string, infoMap *InstanceInfoMap) error {
-	concurrencyLimit := 5
+	concurrencyLimit := 12
 	wg := sync.WaitGroup{}
 
 	semaphoreChan := make(chan struct{}, concurrencyLimit)

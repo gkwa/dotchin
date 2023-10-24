@@ -3,22 +3,64 @@ package cache
 import (
 	"bytes"
 	"encoding/gob"
-	"io"
+	"fmt"
+	"log/slog"
 	"os"
 	"time"
-
-	"log/slog"
 
 	mymazda "github.com/taylormonacelli/forestfish/mymazda"
 )
 
-var CachePath = "/tmp/data.gob"
-var CacheLifetime = 24 * time.Hour
+var (
+	CachePath     = "/tmp/data.gob"
+	CacheLifetime = 24 * time.Hour
+)
 
-func DecodeInterface(buffer io.Reader, value interface{}) error {
-	dec := gob.NewDecoder(buffer)
-	err := dec.Decode(value)
-	return err
+func DecodeFromCache(target interface{}) error {
+	if !mymazda.FileExists(CachePath) {
+		return fmt.Errorf("cache file does not exist")
+	}
+
+	byteSlice, err := os.ReadFile(CachePath)
+	if err != nil {
+		return err
+	}
+
+	var buffer bytes.Buffer
+	buffer.Write(byteSlice)
+
+	dec := gob.NewDecoder(&buffer)
+	err = dec.Decode(target)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SaveToCache(data interface{}) error {
+	var buffer bytes.Buffer
+	gob.Register(data)
+
+	enc := gob.NewEncoder(&buffer)
+	err := enc.Encode(data)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(CachePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.Write(buffer.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func ExpireCache(maxAge time.Duration, filePath string) error {
@@ -39,30 +81,6 @@ func ExpireCache(maxAge time.Duration, filePath string) error {
 		defer os.Remove(CachePath)
 	} else {
 		slog.Debug("cache not old", "age", age, "expires in", expires, "path", CachePath)
-	}
-
-	return nil
-}
-
-func SaveMyArbitrationOjbect(myInfoMap interface{}) error {
-	var buffer bytes.Buffer
-	gob.Register(myInfoMap)
-
-	enc := gob.NewEncoder(&buffer)
-	err := enc.Encode(myInfoMap)
-	if err != nil {
-		return err
-	}
-
-	file, err := os.Create(CachePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = file.Write(buffer.Bytes())
-	if err != nil {
-		return err
 	}
 
 	return nil

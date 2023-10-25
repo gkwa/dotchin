@@ -1,4 +1,8 @@
-Get all instance types in all regions.
+Learning go.
 
-No filtering is done to limit to available types, so if instance 
-is not availble, still this will list it.  
++ get all aws ec2 instance types in all regions
++ practice using coroutines and semaphores to cap concurrency
++ explore golang gob for caching expensive aws requests
++ todo: consider how to add check to see if instance type is availabe
+  right now. Instance can be offered in a region but all instances
+  could be consumed atm. How can we check this efficiently?

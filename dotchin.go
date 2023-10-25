@@ -58,14 +58,14 @@ func Main(noCache bool) int {
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
 
-	cacheErr := busybus.DecodeFromCache(*config, &infoMap)
+	cacheErr := busybus.DecodeFromCache(config.CachePath, &infoMap)
 	if cacheErr == nil {
 		slog.Info("cache", "hit", true)
 	} else {
 		slog.Info("cache", "hit", false)
 		instanceinfo.NetworkFetchInfoMap(regionsChosen, infoMap)
 
-		cacheErr = busybus.SaveToCache(*config, &infoMap)
+		cacheErr = busybus.SaveToCache(config.CachePath, &infoMap)
 		if cacheErr != nil {
 			slog.Error("SaveToCache", "error", cacheErr)
 			return 1

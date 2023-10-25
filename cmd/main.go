@@ -11,12 +11,15 @@ import (
 
 var (
 	verbose   bool
+	noCache   bool
 	logFormat string
 )
 
 func main() {
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose output")
 	flag.BoolVar(&verbose, "v", false, "Enable verbose output (shorthand)")
+
+	flag.BoolVar(&noCache, "no-cache", false, "Dont fetch from cache.  Update cache.")
 
 	flag.StringVar(&logFormat, "log-format", "", "Log format (text or json)")
 
@@ -30,6 +33,6 @@ func main() {
 		}
 	}
 
-	code := dotchin.Main()
+	code := dotchin.Main(noCache)
 	os.Exit(code)
 }

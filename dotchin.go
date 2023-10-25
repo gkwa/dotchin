@@ -15,7 +15,7 @@ var (
 	cachePath string
 )
 
-func Main() int {
+func Main(noCache bool) int {
 	var err error
 
 	cachePath, err = somespider.GenPath("dotchin/data.gob")
@@ -24,7 +24,12 @@ func Main() int {
 		return 1
 	}
 
-	config, err = busybus.NewConfig(cachePath, 24*time.Hour)
+	cacheLifetime := 24 * time.Hour
+	if noCache {
+		cacheLifetime = 0 * time.Second
+	}
+
+	config, err = busybus.NewConfig(cachePath, cacheLifetime)
 	if err != nil {
 		slog.Error("generating cache config failed", "path", cachePath, "error", err)
 		return 1

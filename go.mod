@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/aws/aws-sdk-go-v2/config v1.19.1
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.127.0
-	github.com/taylormonacelli/busybus v0.0.5
+	github.com/taylormonacelli/busybus v0.0.6
 	github.com/taylormonacelli/goldbug v0.0.6
 	github.com/taylormonacelli/lemondrop v0.0.17
 	github.com/taylormonacelli/somespider v0.0.0-20231012013812-aa3606dd52d2

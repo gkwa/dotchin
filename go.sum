@@ -43,8 +43,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/taylormonacelli/busybus v0.0.5 h1:8LidU+mX1fkz/g48TLEvsF2yoBv0LkCkN2meIECmBb4=
-github.com/taylormonacelli/busybus v0.0.5/go.mod h1:xWNkl8Haf+gKOa4jIWIzXwsTYccqWm4WGWIYYJkL+FQ=
+github.com/taylormonacelli/busybus v0.0.6 h1:vZzXs+Zi15RQa6CYpxrvD8OalCLGotOww+j1LQYiosQ=
+github.com/taylormonacelli/busybus v0.0.6/go.mod h1:xWNkl8Haf+gKOa4jIWIzXwsTYccqWm4WGWIYYJkL+FQ=
 github.com/taylormonacelli/forestfish v0.0.9 h1:EHEkImUR5X/u7OpOSx4M9t51btRABjz0zz0RNphN8A4=
 github.com/taylormonacelli/forestfish v0.0.9/go.mod h1:8Xio8qE+Hc/cthG+dNVLakh5qYHl05Sq5vS8XzU62sA=
 github.com/taylormonacelli/goldbug v0.0.6 h1:2NQnMjAfznHkKh8dKPTUHJqnswgqWrcF/NhOnm4TQRI=

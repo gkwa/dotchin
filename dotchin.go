@@ -45,14 +45,15 @@ func Main() int {
 	regionsChosen := _filterRandomRegions(regions, maxRegions)
 	slog.Debug("searching regions", "regions", regions)
 
-	err = config.ExpireCache(config.CacheLifetime, config.CachePath)
+	err = config.RemoveExpiredCache()
 	if err != nil {
 		slog.Error("ExpireCache", "error", err)
+		return 1
 	}
 
 	infoMap := instanceinfo.NewInstanceInfoMap()
-	cacheErr := busybus.DecodeFromCache(*config, &infoMap)
 
+	cacheErr := busybus.DecodeFromCache(*config, &infoMap)
 	if cacheErr == nil {
 		slog.Info("cache", "hit", true)
 	} else {
@@ -62,6 +63,7 @@ func Main() int {
 		cacheErr = busybus.SaveToCache(*config, &infoMap)
 		if cacheErr != nil {
 			slog.Error("SaveToCache", "error", cacheErr)
+			return 1
 		}
 	}
 

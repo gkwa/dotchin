@@ -46,15 +46,8 @@ func NetworkFetchInfoMap(regions []string, infoMap *InstanceInfoMap) error {
 		close(results)
 	}()
 
-	// block to complete
 	for range results {
 	}
-
-	// err := cache.SaveMyArbitrationOjbect(infoMap)
-	// if err != nil {
-	// 	slog.Error("persistMapToDisk", "error", err)
-	// 	return err
-	// }
 
 	return nil
 }

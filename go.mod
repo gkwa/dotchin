@@ -8,7 +8,7 @@ require (
 	github.com/taylormonacelli/busybus v0.0.7
 	github.com/taylormonacelli/goldbug v0.0.6
 	github.com/taylormonacelli/lemondrop v0.0.17
-	github.com/taylormonacelli/somespider v0.0.0-20231012013812-aa3606dd52d2
+	github.com/taylormonacelli/somespider v0.0.0-20240127160314-1cf65a8b592b
 )
 
 require (

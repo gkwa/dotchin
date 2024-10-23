@@ -55,6 +55,8 @@ github.com/taylormonacelli/lemondrop v0.0.17 h1:nYTHkpjyn1kwCl/GWpxB+sMW/7pvfMTL
 github.com/taylormonacelli/lemondrop v0.0.17/go.mod h1:bWJkmgt8eYEZekjd+Br7gjZ3y8KJQswkhhxphgOEZxk=
 github.com/taylormonacelli/somespider v0.0.0-20231012013812-aa3606dd52d2 h1:zW1WUtSTqn/3Hf2cLQUYVQInIvkDTg4iEQfxx1Kfirk=
 github.com/taylormonacelli/somespider v0.0.0-20231012013812-aa3606dd52d2/go.mod h1:lZSB/IUt7gzn5KIdfO+xRyLX3JhfvRn/vxTMWMSkcOM=
+github.com/taylormonacelli/somespider v0.0.0-20240127160314-1cf65a8b592b h1:b9rJpLFYnj+3983WWZMNpPnpui+HEeQIwl4/QQnNf28=
+github.com/taylormonacelli/somespider v0.0.0-20240127160314-1cf65a8b592b/go.mod h1:lZSB/IUt7gzn5KIdfO+xRyLX3JhfvRn/vxTMWMSkcOM=
 golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.13.0 h1:Af8nKPmuFypiUBjVoU9V20FiaFXOcuZI21p0ycVYYGE=
 golang.org/x/sys v0.13.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

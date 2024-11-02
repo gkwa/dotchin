@@ -4,6 +4,8 @@ github.com/adrg/xdg v0.5.0 h1:dDaZvhMXatArP1NPHhnfaQUqWBLBsmx1h1HXQdMoFCY=
 github.com/adrg/xdg v0.5.0/go.mod h1:dDdY4M4DF9Rjy4kHPeNL+ilVF+p2lK8IdM9/rTSGcI4=
 github.com/adrg/xdg v0.5.2 h1:HNeVffMIG56GLMaoKTcTcyFhD2xS/dhyuBlKSNCM6Ug=
 github.com/adrg/xdg v0.5.2/go.mod h1:nlTsY+NNiCBGCK2tpm09vRqfVzrc2fLmXGpBLF0zlTQ=
+github.com/adrg/xdg v0.5.3 h1:xRnxJXne7+oWDatRhR1JLnvuccuIeCoBu2rtuLqQB78=
+github.com/adrg/xdg v0.5.3/go.mod h1:nlTsY+NNiCBGCK2tpm09vRqfVzrc2fLmXGpBLF0zlTQ=
 github.com/aws/aws-sdk-go-v2 v1.21.2 h1:+LXZ0sgo8quN9UOKXXzAWRT3FWd4NxeXWOZom9pE7GA=
 github.com/aws/aws-sdk-go-v2 v1.21.2/go.mod h1:ErQhvNuEMhJjweavOYhxVkn2RUx7kQXVATHrjKtxIpM=
 github.com/aws/aws-sdk-go-v2 v1.27.2 h1:pLsTXqX93rimAOZG2FIYraDQstZaaGVVN4tNw65v0h8=
@@ -151,6 +153,8 @@ github.com/taylormonacelli/somespider v0.0.0-20241023183358-4b44d57a63a8 h1:KdZD
 github.com/taylormonacelli/somespider v0.0.0-20241023183358-4b44d57a63a8/go.mod h1:pk8OW6NJptfzfgpNIv6+0wHeqST9UNcdsXZ1Pzk3UYY=
 github.com/taylormonacelli/somespider v0.0.0-20241031023636-2db1c7875f31 h1:ScTtoVTzsqbkjjoDMyGkIAXIpFlqKbQKSieDV77FfRc=
 github.com/taylormonacelli/somespider v0.0.0-20241031023636-2db1c7875f31/go.mod h1:o986TjppON8raAY+IbyETft1OvJ4KqNr6SsDFBhCPjw=
+github.com/taylormonacelli/somespider v0.0.0-20241101082200-caf36eef8a88 h1:wsZ+2ter2u2tt/DD5yfEFrKjD1OYl6NUxvUaXVLC7/s=
+github.com/taylormonacelli/somespider v0.0.0-20241101082200-caf36eef8a88/go.mod h1:hcu+6JfOMPsgSQ/k5pg2GT3ilAX74mndp4k43yfZHNE=
 golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.13.0 h1:Af8nKPmuFypiUBjVoU9V20FiaFXOcuZI21p0ycVYYGE=
 golang.org/x/sys v0.13.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

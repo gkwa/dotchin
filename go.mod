@@ -8,11 +8,11 @@ require (
 	github.com/taylormonacelli/busybus v0.0.7
 	github.com/taylormonacelli/goldbug v0.0.6
 	github.com/taylormonacelli/lemondrop v0.0.20
-	github.com/taylormonacelli/somespider v0.0.0-20241031023636-2db1c7875f31
+	github.com/taylormonacelli/somespider v0.0.0-20241101082200-caf36eef8a88
 )
 
 require (
-	github.com/adrg/xdg v0.5.2 // indirect
+	github.com/adrg/xdg v0.5.3 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.32.3 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.42 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.18 // indirect

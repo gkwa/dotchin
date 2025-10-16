@@ -6,7 +6,7 @@ toolchain go1.25.3
 
 require (
 	github.com/aws/aws-sdk-go-v2/config v1.31.12
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.255.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.257.0
 	github.com/taylormonacelli/busybus v0.0.7
 	github.com/taylormonacelli/goldbug v0.0.6
 	github.com/taylormonacelli/lemondrop v0.0.20
